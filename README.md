@@ -51,11 +51,34 @@ This is a **git superproject with submodules**:
    # Installation instructions: https://github.com/nestybox/sysbox
    ```
 
-2. **Build TSK Docker images**:
+2. **Generate Docker image tar files** (REQUIRED - not in git due to size):
    ```bash
-   cd /path/to/tsk
-   just docker-build
-   # or: tsk docker build
+   cd /home/alden/projects/fullstack-test-app
+
+   # Pull and save images (run on your HOST, not in container)
+   docker pull mcr.microsoft.com/dotnet/sdk:8.0
+   docker save mcr.microsoft.com/dotnet/sdk:8.0 -o docker-images/dotnet-sdk-8.0.tar
+
+   docker pull node:lts-alpine
+   docker save node:lts-alpine -o docker-images/node-lts-alpine.tar
+
+   docker pull mcr.microsoft.com/mssql/server:2022-latest
+   docker save mcr.microsoft.com/mssql/server:2022-latest -o docker-images/mssql-2022.tar
+
+   docker pull nginx:alpine
+   docker save nginx:alpine -o docker-images/nginx-alpine.tar
+
+   # These files (~2.6GB) are excluded from git but needed for network-restricted containers
+   ```
+
+3. **Build TSK Docker images**:
+   ```bash
+   # First build the project-specific image from fullstack-test-app directory
+   cd /home/alden/projects/fullstack-test-app
+   tsk docker build
+
+   # This includes the pre-saved Docker images in the project layer
+   # The image will be cached and reused for all serve containers
    ```
 
 ### Phase 1: Basic Serve Mode
@@ -190,11 +213,19 @@ Located at `.tsk/dockerfiles/project/fullstack-test-app.dockerfile`, this custom
 - .NET 8.0 SDK (for ASP.NET Core APIs)
 - Angular CLI (for frontend development)
 - SQL Server tools (for database operations)
+- Pre-saved Docker images (copied to `/opt/docker-images/` during build)
 
 Built automatically by TSK on top of:
 - Base layer: Ubuntu 24.04 + common tools
-- Stack layer: Node.js + npm
+- Stack layer: Node.js + npm (default)
 - Agent layer: Claude Code CLI
+
+**Runtime Configuration:**
+- Container runs as **root** when using sysbox-runc (required for Docker-in-Docker)
+- All tools installed system-wide or to /root for root user access
+- Sysbox provides namespace isolation, so root inside ≠ root on host (safe)
+
+**Important**: The Docker images (*.tar files) are copied from the fullstack-test-app directory into the Docker image during build. This is why you must run `tsk docker build` from this directory before using serve mode. The images are gitignored but baked into the Docker layer, making them available in all containers without needing network access.
 
 ## Requirements
 

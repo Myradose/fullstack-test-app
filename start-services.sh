@@ -10,7 +10,7 @@ echo "==================================="
 echo ""
 
 echo "Starting Docker daemon..."
-# Agent user is in docker group, so no sudo needed with sysbox
+# Container runs as root with sysbox, so no sudo needed
 dockerd > /tmp/dockerd.log 2>&1 &
 
 echo "Waiting for Docker daemon to be ready..."
@@ -29,10 +29,10 @@ done
 
 echo ""
 echo "Loading Docker images from tar files..."
-docker load -i /workspace/docker-images/dotnet-sdk-8.0.tar
-docker load -i /workspace/docker-images/node-lts-alpine.tar
-docker load -i /workspace/docker-images/mssql-2022.tar
-docker load -i /workspace/docker-images/nginx-alpine.tar
+docker load -i /opt/docker-images/dotnet-sdk-8.0.tar
+docker load -i /opt/docker-images/node-lts-alpine.tar
+docker load -i /opt/docker-images/mssql-2022.tar
+docker load -i /opt/docker-images/nginx-alpine.tar
 
 echo ""
 echo "Verifying images are loaded..."

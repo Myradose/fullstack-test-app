@@ -5,14 +5,6 @@
 # Install Node.js and npm (needed for Angular)
 USER root
 
-# Set root password to "root" for easy su access in sysbox containers
-# This is safe because sysbox isolates the container's root from the host
-RUN echo 'root:root' | chpasswd
-
-# Also configure passwordless sudo for agent user as backup
-RUN echo "agent ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/agent && \
-    chmod 0440 /etc/sudoers.d/agent
-
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean && \
@@ -44,22 +36,13 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Add agent user to docker group so they can run dockerd without sudo
-RUN usermod -aG docker agent
-
-# Switch to agent user for installations that go to user home
-USER agent
-
-# Install .NET 8.0 SDK for ASP.NET Core APIs
+# Install .NET 8.0 SDK for ASP.NET Core APIs (as root, since container runs as root with sysbox)
 RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 8.0 && \
-    echo 'export PATH="$PATH:$HOME/.dotnet"' >> /home/agent/.bashrc && \
-    echo 'export DOTNET_ROOT="$HOME/.dotnet"' >> /home/agent/.bashrc
+    echo 'export PATH="$PATH:$HOME/.dotnet"' >> /root/.bashrc && \
+    echo 'export DOTNET_ROOT="$HOME/.dotnet"' >> /root/.bashrc
 
-ENV PATH="$PATH:/home/agent/.dotnet"
-ENV DOTNET_ROOT="/home/agent/.dotnet"
-
-# Switch back to root for system-level installations
-USER root
+ENV PATH="$PATH:/root/.dotnet"
+ENV DOTNET_ROOT="/root/.dotnet"
 
 # Install SQL Server tools for database operations
 RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg && \
@@ -74,6 +57,10 @@ ENV PATH="$PATH:/opt/mssql-tools18/bin"
 # Install Angular CLI globally (as root so it's available system-wide)
 RUN npm install -g @angular/cli @angular/language-server
 
-# Switch back to agent user for runtime
-USER agent
+# Copy pre-saved Docker images into the image (not in git due to size)
+# Store in /opt/docker-images so they don't get overlaid by the /workspace mount
+COPY docker-images/*.tar /opt/docker-images/
+
+# Note: TSK will run this container as root when using sysbox-runc runtime
+# This is intentional for Docker-in-Docker functionality
 WORKDIR /workspace
