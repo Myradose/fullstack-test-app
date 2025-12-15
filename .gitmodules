@@ -1,0 +1,9 @@
+[submodule "ui"]
+	path = ui
+	url = ./ui
+[submodule "api"]
+	path = api
+	url = ./api
+[submodule "db"]
+	path = db
+	url = ./db

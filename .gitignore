@@ -1,0 +1,13 @@
+# TSK runtime configuration (created during testing)
+.tsk/serve.toml
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
