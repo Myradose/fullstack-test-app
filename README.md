@@ -122,9 +122,36 @@ tsk serve attach fullstack-dev-1
 tsk serve stop fullstack-dev-1
 ```
 
-### Phase 2-3: Multiple Parallel Implementations
+### Phase 1: "Doctor Strange" Workflow - Agent Approach
 
-**Start multiple implementations**
+**Prerequisite**: Baseline dashboard component must exist first:
+- Location: `ui/src/app/dashboard/`
+- Displays users and products data in simple linear layout
+- If not present, create it first using `tsk run` (see testing guide for exact prompt)
+
+**Test Multiple Agent Implementations**:
+```bash
+# Have three agents implement different UI patterns in parallel
+tsk run --serve --name tabs-impl --runtime sysbox-runc \
+  "Refactor dashboard to use Angular Material tabs..."
+
+tsk run --serve --name accordion-impl --runtime sysbox-runc \
+  "Refactor dashboard to use Angular Material accordion..."
+
+tsk run --serve --name carousel-impl --runtime sysbox-runc \
+  "Refactor dashboard to use carousel pattern..."
+
+# Compare results and choose winner
+tsk serve list
+tsk serve attach tabs-impl
+# Inspect, compare, stop losers, continue with winner
+```
+
+See `/home/alden/projects/tsk/docs/serve-mode-testing-guide.md` Scenario 1A for full details.
+
+### Phase 2-5: Multiple Parallel Implementations - Manual Approach
+
+**Start multiple implementations manually**
 ```bash
 # Implementation A: Tabs
 tsk shell --serve --runtime sysbox-runc --name tabs-implementation
