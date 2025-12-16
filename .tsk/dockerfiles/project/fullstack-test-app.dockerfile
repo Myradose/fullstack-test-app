@@ -61,6 +61,15 @@ RUN npm install -g @angular/cli @angular/language-server
 # Store in /opt/docker-images so they don't get overlaid by the /workspace mount
 COPY docker-images/*.tar /opt/docker-images/
 
+# Make docker images readable by agent user
+RUN chmod 644 /opt/docker-images/*.tar
+
+# Configure passwordless sudo for agent user (needed for dockerd with sysbox)
+RUN echo "agent ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Add agent user to docker group for socket access
+RUN usermod -aG docker agent
+
 # Switch back to agent user so AGENT layer installs with correct ownership
 USER agent
 

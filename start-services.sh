@@ -10,8 +10,8 @@ echo "==================================="
 echo ""
 
 echo "Starting Docker daemon..."
-# Container runs as root with sysbox, so no sudo needed
-dockerd > /tmp/dockerd.log 2>&1 &
+# Container runs as agent user with sysbox, needs sudo for dockerd
+sudo dockerd > /tmp/dockerd.log 2>&1 &
 
 echo "Waiting for Docker daemon to be ready..."
 for i in {1..30}; do
