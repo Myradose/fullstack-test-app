@@ -64,6 +64,6 @@ COPY docker-images/*.tar /opt/docker-images/
 # Switch back to agent user so AGENT layer installs with correct ownership
 USER agent
 
-# Note: TSK will run this container as root when using sysbox-runc runtime
-# This is intentional for Docker-in-Docker functionality
+# Note: Containers always run as agent user, even with sysbox-runc
+# Sysbox provides Docker-in-Docker via user namespace mapping
 WORKDIR /workspace
