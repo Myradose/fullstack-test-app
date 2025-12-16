@@ -61,6 +61,9 @@ RUN npm install -g @angular/cli @angular/language-server
 # Store in /opt/docker-images so they don't get overlaid by the /workspace mount
 COPY docker-images/*.tar /opt/docker-images/
 
+# Switch back to agent user so AGENT layer installs with correct ownership
+USER agent
+
 # Note: TSK will run this container as root when using sysbox-runc runtime
 # This is intentional for Docker-in-Docker functionality
 WORKDIR /workspace
