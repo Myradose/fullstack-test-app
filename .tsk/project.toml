@@ -1,0 +1,8 @@
+runtime = "sysbox-runc"
+
+[init]
+script = "./start-services.sh"
+work_dir = "/workspace"
+
+[env]
+NODE_ENV = "development"
