@@ -9,13 +9,7 @@ echo ""
 
 # Check if Docker-in-Docker is available (requires sysbox-runc runtime)
 echo "Checking for Docker-in-Docker support..."
-if ! sudo dockerd > /tmp/dockerd.log 2>&1 & then
-  echo "⚠️  Docker-in-Docker not available (requires sysbox-runc runtime)"
-  echo "   Services will not be started."
-  echo "   To use Docker-in-Docker, run with: --runtime sysbox-runc"
-  exit 0  # Exit successfully, just skip services
-fi
-
+sudo dockerd > /tmp/dockerd.log 2>&1 &
 DOCKERD_PID=$!
 
 echo "Waiting for Docker daemon to be ready..."
