@@ -2,30 +2,48 @@
 # Manual startup script for fullstack services in TSK serve container
 # This will become the init_script in Phase 2
 
-set -e  # Exit on error
-
 echo "==================================="
 echo "Fullstack Services Startup Script"
 echo "==================================="
 echo ""
 
-echo "Starting Docker daemon..."
-# Container runs as agent user with sysbox, needs sudo for dockerd
-sudo dockerd > /tmp/dockerd.log 2>&1 &
+# Check if Docker-in-Docker is available (requires sysbox-runc runtime)
+echo "Checking for Docker-in-Docker support..."
+if ! sudo dockerd > /tmp/dockerd.log 2>&1 & then
+  echo "⚠️  Docker-in-Docker not available (requires sysbox-runc runtime)"
+  echo "   Services will not be started."
+  echo "   To use Docker-in-Docker, run with: --runtime sysbox-runc"
+  exit 0  # Exit successfully, just skip services
+fi
+
+DOCKERD_PID=$!
 
 echo "Waiting for Docker daemon to be ready..."
 for i in {1..30}; do
   if docker info > /dev/null 2>&1; then
-    echo "Docker daemon is ready!"
+    echo "✓ Docker daemon is ready!"
     break
   fi
+
+  # Check if dockerd process is still running
+  if ! kill -0 $DOCKERD_PID 2>/dev/null; then
+    echo "⚠️  Docker daemon failed to start (requires sysbox-runc runtime)"
+    echo "   Services will not be started."
+    echo "   To use Docker-in-Docker, run with: --runtime sysbox-runc"
+    exit 0  # Exit successfully, just skip services
+  fi
+
   if [ $i -eq 30 ]; then
-    echo "ERROR: Docker daemon failed to start within 30 seconds"
-    echo "Check logs: cat /tmp/dockerd.log"
-    exit 1
+    echo "⚠️  Docker daemon timed out after 30 seconds"
+    echo "   Check logs: cat /tmp/dockerd.log"
+    kill $DOCKERD_PID 2>/dev/null || true
+    exit 0  # Exit successfully, just skip services
   fi
   sleep 1
 done
+
+# From this point on, fail on any error
+set -e
 
 echo ""
 echo "Loading Docker images from tar files..."
