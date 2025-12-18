@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/usr/lib/node_modules/@playwright/mcp/cli.js",
+        "--browser=chromium",
+        "--executable-path=/opt/ms-playwright/chromium-1200/chrome-linux64/chrome",
+        "--user-data-dir=/opt/playwright-profiles"
+      ],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "/opt/ms-playwright"
+      }
+    }
+  }
+}

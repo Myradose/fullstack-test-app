@@ -57,6 +57,18 @@ ENV PATH="$PATH:/opt/mssql-tools18/bin"
 # Install Angular CLI globally (as root so it's available system-wide)
 RUN npm install -g @angular/cli @angular/language-server
 
+# Install Playwright MCP and browsers for browser automation
+# This installs @playwright/mcp globally and downloads chromium, firefox, webkit browsers
+# Browsers are installed to /opt/ms-playwright/ (shared location accessible by all users)
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
+RUN npm install -g @playwright/mcp@latest && \
+    npx playwright install --with-deps chromium firefox webkit && \
+    chmod -R 755 /opt/ms-playwright && \
+    mkdir -p /opt/playwright-profiles && \
+    chown -R agent:agent /opt/playwright-profiles && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copy pre-saved Docker images into the image (not in git due to size)
 # Store in /opt/docker-images so they don't get overlaid by the /workspace mount
 COPY docker-images/*.tar /opt/docker-images/
