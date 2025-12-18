@@ -4,14 +4,20 @@ services:
     working_dir: /app
     volumes:
       - ./api/UserApi:/app
-    command: ["dotnet", "run", "--urls", "http://0.0.0.0:5000"]
+    command: ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:5000", "--no-launch-profile"]
+    environment:
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+      - ASPNETCORE_ENVIRONMENT=Development
 
   product-api:
     image: mcr.microsoft.com/dotnet/sdk:8.0
     working_dir: /app
     volumes:
       - ./api/ProductApi:/app
-    command: ["dotnet", "run", "--urls", "http://0.0.0.0:5001"]
+    command: ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:5001", "--no-launch-profile"]
+    environment:
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+      - ASPNETCORE_ENVIRONMENT=Development
 
   fullstack-ui:
     image: node:lts-alpine
