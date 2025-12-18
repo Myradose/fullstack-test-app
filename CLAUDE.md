@@ -91,3 +91,24 @@ docker compose exec fullstack-ui npm test
 
 - **Connection string**: `Server=localhost,1433;Database=FullStackApp;User Id=sa;Password=Password123!;TrustServerCertificate=true;`
 - **Tables**: `Users` (Id, Name, Email, CreatedAt), `Products` (Id, Name, Description, Price, CreatedAt)
+
+## Testing
+
+**IMPORTANT**: All changes must be tested thoroughly before being considered complete.
+
+### Required Testing Steps
+
+1. **Check Docker Container Logs**
+   - After making changes, verify that all services start without errors
+   - Use `docker compose logs -f` to monitor all container logs
+   - Ensure no errors, warnings, or exceptions appear in the logs
+   - Check that all services are healthy and responding
+
+2. **End-to-End Testing with Playwright MCP**
+   - Use the Playwright MCP tools for automated browser testing
+   - Test the full user flow through the application UI
+   - Verify API responses and data display in the frontend
+   - Confirm all CRUD operations work correctly
+   - Test error handling and edge cases
+
+Changes are not complete until both container logs are clean and E2E tests pass successfully.
