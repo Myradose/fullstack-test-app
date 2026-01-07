@@ -1,5 +1,6 @@
 runtime = "sysbox-runc"
 docker_cache = true
+layers = ["dind"]
 
 [init]
 script = "./start-services.sh"

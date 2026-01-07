@@ -1,38 +1,13 @@
 # Project-specific Dockerfile for fullstack-test-app
-# TSK automatically builds this on top of: base → stack (default) → agent (claude)
-# This layer adds: Node.js, Docker, .NET SDK, Angular CLI, SQL Server tools
+# TSK automatically builds this on top of: base → stack (default) → layers (dind) → agent (claude)
+# This layer adds: Node.js, .NET SDK, Angular CLI, SQL Server tools
+# Docker-in-Docker is provided by the dind layer (configured via layers = ["dind"] in project.toml)
 
 # Install Node.js and npm (needed for Angular)
 USER root
 
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Install Docker and Docker Compose for Docker-in-Docker with sysbox
-# IMPORTANT: Pin containerd to 1.7.28-1 to avoid breaking changes in newer versions
-# See: https://www.reddit.com/r/docker/comments/... (containerd bug with ip_unprivileged_port_start)
-RUN apt-get update && \
-    apt-get install -y \
-        ca-certificates \
-        curl \
-        gnupg \
-        lsb-release && \
-    install -m 0755 -d /etc/apt/keyrings && \
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
-    chmod a+r /etc/apt/keyrings/docker.gpg && \
-    echo \
-      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-      tee /etc/apt/sources.list.d/docker.list > /dev/null && \
-    apt-get update && \
-    apt-get install -y \
-        docker-ce \
-        docker-ce-cli \
-        containerd.io=1.7.28-1~ubuntu.24.04~noble \
-        docker-buildx-plugin \
-        docker-compose-plugin && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -77,13 +52,8 @@ RUN npm install -g @playwright/mcp@latest && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Configure passwordless sudo for agent user (needed for dockerd with sysbox)
-RUN echo "agent ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-# Add agent user to docker group for socket access
-RUN usermod -aG docker agent
-
 # Switch back to agent user so AGENT layer installs with correct ownership
+# Note: sudo and docker group membership are provided by the dind layer
 USER agent
 
 # Note: Containers always run as agent user, even with sysbox-runc
