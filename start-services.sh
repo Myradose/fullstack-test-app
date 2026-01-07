@@ -1,6 +1,6 @@
 #!/bin/bash
 # Startup script for fullstack services in TSK serve container
-# Uses docker_cache volume for persistent image storage
+# Uses tarball-based image caching for parallel container support
 
 echo "==================================="
 echo "Fullstack Services Startup Script"
@@ -57,14 +57,28 @@ set -e
 
 cd /workspace
 
-# Check if images are already cached (from docker_cache volume)
+# Image cache directory (mounted from shared volume by TSK)
+IMAGE_CACHE="/docker-image-cache"
+CACHE_FILE="$IMAGE_CACHE/images.tar"
+
 echo ""
 echo "Checking for cached Docker images..."
-if docker image inspect mcr.microsoft.com/mssql/server:2022-latest &>/dev/null; then
-  echo "✓ Images found in cache - skipping pull"
+if [ -d "$IMAGE_CACHE" ] && [ -f "$CACHE_FILE" ]; then
+  echo "Loading images from cache..."
+  sudo docker load -i "$CACHE_FILE"
+  echo "✓ Images loaded from cache"
 else
   echo "Images not cached - pulling from registries..."
   docker compose pull
+
+  # Save images to cache for next run (if cache directory exists)
+  if [ -d "$IMAGE_CACHE" ]; then
+    echo "Saving images to cache..."
+    # Get deduplicated list of images from docker-compose.yml
+    IMAGES=$(docker compose config --images | sort -u)
+    sudo docker save -o "$CACHE_FILE" $IMAGES
+    echo "✓ Images saved to cache"
+  fi
 fi
 
 echo ""

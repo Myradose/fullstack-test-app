@@ -1,0 +1,13 @@
+{
+  "browser": {
+    "browserName": "chromium",
+    "userDataDir": "/opt/playwright-profiles",
+    "launchOptions": {
+      "executablePath": "/opt/ms-playwright/chromium-1200/chrome-linux64/chrome",
+      "args": ["--window-position=0,0", "--window-size=1920,1080"]
+    },
+    "contextOptions": {
+      "viewport": null
+    }
+  }
+}
