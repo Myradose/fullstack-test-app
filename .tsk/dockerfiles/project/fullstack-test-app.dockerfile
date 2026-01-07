@@ -57,6 +57,14 @@ ENV PATH="$PATH:/opt/mssql-tools18/bin"
 # Install Angular CLI globally (as root so it's available system-wide)
 RUN npm install -g @angular/cli @angular/language-server
 
+# Install beads (bd) for git-backed task tracking
+# See: https://github.com/steveyegge/beads
+RUN npm install -g @beads/bd
+
+# Install beads viewer (bv) for AI-friendly graph analytics
+# See: https://github.com/Dicklesworthstone/beads_viewer
+RUN curl -fsSL https://raw.githubusercontent.com/Dicklesworthstone/beads_viewer/main/install.sh | bash
+
 # Install Playwright MCP and browsers for browser automation
 # This installs @playwright/mcp globally and downloads chromium, firefox, webkit browsers
 # Browsers are installed to /opt/ms-playwright/ (shared location accessible by all users)
@@ -68,13 +76,6 @@ RUN npm install -g @playwright/mcp@latest && \
     chown -R agent:agent /opt/playwright-profiles && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
-# Copy pre-saved Docker images into the image (not in git due to size)
-# Store in /opt/docker-images so they don't get overlaid by the /workspace mount
-COPY docker-images/*.tar /opt/docker-images/
-
-# Make docker images readable by agent user
-RUN chmod 644 /opt/docker-images/*.tar
 
 # Configure passwordless sudo for agent user (needed for dockerd with sysbox)
 RUN echo "agent ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers

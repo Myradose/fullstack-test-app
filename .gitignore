@@ -1,9 +1,6 @@
 # TSK runtime configuration (created during testing)
 .tsk/serve.toml
 
-# Docker image tar files (too large for git, recreate with docker pull + docker save)
-docker-images/*.tar
-
 # Editor files
 .vscode/
 .idea/
