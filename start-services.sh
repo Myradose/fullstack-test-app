@@ -1,6 +1,6 @@
 #!/bin/bash
-# Manual startup script for fullstack services in TSK serve container
-# This will become the init_script in Phase 2
+# Startup script for fullstack services in TSK serve container
+# Uses docker_cache volume for persistent image storage
 
 echo "==================================="
 echo "Fullstack Services Startup Script"
@@ -39,20 +39,20 @@ done
 # From this point on, fail on any error
 set -e
 
-echo ""
-echo "Loading Docker images from tar files..."
-docker load -i /opt/docker-images/dotnet-sdk-8.0.tar
-docker load -i /opt/docker-images/node-lts-alpine.tar
-docker load -i /opt/docker-images/mssql-2022.tar
-docker load -i /opt/docker-images/nginx-alpine.tar
+cd /workspace
 
+# Check if images are already cached (from docker_cache volume)
 echo ""
-echo "Verifying images are loaded..."
-docker images
+echo "Checking for cached Docker images..."
+if docker image inspect mcr.microsoft.com/mssql/server:2022-latest &>/dev/null; then
+  echo "✓ Images found in cache - skipping pull"
+else
+  echo "Images not cached - pulling from registries..."
+  docker compose pull
+fi
 
 echo ""
 echo "Starting services with docker compose..."
-cd /workspace
 docker compose up -d
 
 echo ""
