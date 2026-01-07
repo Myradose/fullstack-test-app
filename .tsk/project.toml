@@ -8,7 +8,9 @@ work_dir = "/workspace"
 
 [env]
 NODE_ENV = "development"
+DISPLAY = ":99"
 
 [services]
 frontend = { port = 4200, path = "/", priority = 1 }
 gateway = { port = 8000, path = "/api", strip_prefix = false, priority = 10 }
+vnc = { port = 6080, path = "/vnc", strip_prefix = true, priority = 10, url = "/vnc/vnc.html?path=vnc/websockify&autoconnect=true&resize=scale" }

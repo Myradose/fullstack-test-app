@@ -52,6 +52,13 @@ RUN npm install -g @playwright/mcp@latest && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Install VNC for browser observability
+# Allows real-time observation of Playwright browser automation via web browser
+RUN apt-get update && \
+    apt-get install -y xvfb x11vnc novnc websockify && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Switch back to agent user so AGENT layer installs with correct ownership
 # Note: sudo and docker group membership are provided by the dind layer
 USER agent
