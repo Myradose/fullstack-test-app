@@ -112,3 +112,79 @@ docker compose exec fullstack-ui npm test
    - Test error handling and edge cases
 
 Changes are not complete until both container logs are clean and E2E tests pass successfully.
+
+## Task Tracking with Beads
+
+This project uses **beads** (`bd`) for issue tracking. Tickets are created externally - your job is to execute them.
+
+### Working on a Ticket
+
+When given a ticket to complete (e.g., "complete ticket abc123"):
+
+1. **Look up the ticket:** `bd show <id>`
+2. **Check dependencies:** `bd ready` or `bv --robot-plan`
+3. **Complete dependencies first** if any are blocking
+4. **Mark in progress:** `bd update <id> --status in_progress`
+5. **Implement the work**
+6. **Close when done:** `bd close <id> --reason "Done"`
+7. **Sync:** `bd sync`
+
+### Command Reference
+
+```bash
+bd show <id>                          # View ticket details and dependencies
+bd ready                              # List tickets ready to work on (no blockers)
+bd update <id> --status in_progress   # Mark ticket as in progress
+bd close <id> --reason "Done"         # Complete a ticket
+bd sync                               # Sync with git
+```
+
+### Why Beads?
+
+- Git-backed (stored in `.beads/`) - issues travel with the code
+- Dependency tracking - `bd ready` shows what's unblocked
+- Persistent across sessions - next agent sees your work
+
+### Graph Analytics with bv (Beads Viewer)
+
+Use `bv` for AI-friendly graph analysis instead of parsing JSONL or hand-rolling graph logic:
+
+```bash
+bv --robot-help                       # Show all AI-facing commands
+bv --robot-insights                   # JSON graph metrics (PageRank, critical path, cycles)
+bv --robot-plan                       # JSON execution plan with parallel tracks
+bv --robot-priority                   # JSON priority recommendations with reasoning
+bv --robot-recipes                    # List available filter recipes
+bv --robot-diff --diff-since <commit> # JSON diff of issue changes since commit
+```
+
+**When to use bv:**
+- Before starting work: `bv --robot-plan` to see optimal execution order
+- For complex tasks: `bv --robot-insights` to identify blockers and critical paths
+- For prioritization: `bv --robot-priority` for recommendations with confidence scores
+
+### Landing the Plane (Session Completion)
+
+**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+
+**MANDATORY WORKFLOW:**
+
+1. **File issues for remaining work** - Create issues with `bd create` for anything that needs follow-up
+2. **Run quality gates** (if code changed) - Tests, linters, builds
+3. **Update issue status** - Close finished work with `bd close`, update in-progress items
+4. **PUSH TO REMOTE** - This is MANDATORY:
+   ```bash
+   git pull --rebase
+   bd sync
+   git push
+   git status  # MUST show "up to date with origin"
+   ```
+5. **Clean up** - Clear stashes, prune remote branches
+6. **Verify** - All changes committed AND pushed
+7. **Hand off** - Provide context for next session
+
+**CRITICAL RULES:**
+- Work is NOT complete until `git push` succeeds
+- NEVER stop before pushing - that leaves work stranded locally
+- NEVER say "ready to push when you are" - YOU must push
+- If push fails, resolve and retry until it succeeds
