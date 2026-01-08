@@ -121,6 +121,47 @@ if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
   # Use = for literal string comparison (not pattern matching)
   # == in [[ ]] does glob pattern matching which breaks with *, ?, [ characters
   if [[ -n "$PROMISE_TEXT" ]] && [[ "$PROMISE_TEXT" = "$COMPLETION_PROMISE" ]]; then
+    # Check for uncommitted changes before allowing exit
+    MAIN_CHANGES=$(git status --porcelain 2>/dev/null)
+    SUBMODULE_CHANGES=$(git submodule foreach --quiet --recursive 'git status --porcelain' 2>/dev/null)
+
+    if [[ -n "$MAIN_CHANGES" ]] || [[ -n "$SUBMODULE_CHANGES" ]]; then
+      # Build message showing uncommitted changes
+      UNCOMMITTED_MSG="⚠️  Ralph loop: Uncommitted changes detected!
+
+You must commit your changes before the loop can exit.
+This ensures all work is saved and can be reviewed.
+"
+      if [[ -n "$MAIN_CHANGES" ]]; then
+        UNCOMMITTED_MSG="${UNCOMMITTED_MSG}
+Main repository:
+$(git status --short)
+"
+      fi
+
+      if [[ -n "$SUBMODULE_CHANGES" ]]; then
+        UNCOMMITTED_MSG="${UNCOMMITTED_MSG}
+Submodules:
+$(git submodule foreach --quiet --recursive 'if [ -n "$(git status --porcelain)" ]; then echo "  $name:"; git status --short | sed "s/^/    /"; fi')
+"
+      fi
+
+      UNCOMMITTED_MSG="${UNCOMMITTED_MSG}
+Please commit your changes, then the loop will complete."
+
+      echo "$UNCOMMITTED_MSG" >&2
+
+      # Block exit and tell Claude to commit
+      jq -n \
+        --arg msg "$UNCOMMITTED_MSG" \
+        '{
+          "decision": "block",
+          "reason": "Please commit all uncommitted changes. Use git add and git commit to save your work in all repositories (including submodules).",
+          "systemMessage": $msg
+        }'
+      exit 0
+    fi
+
     echo "✅ Ralph loop: Detected <promise>$COMPLETION_PROMISE</promise>"
     rm "$RALPH_STATE_FILE"
     exit 0
