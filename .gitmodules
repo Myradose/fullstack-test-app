@@ -1,9 +1,9 @@
 [submodule "ui"]
 	path = ui
-	url = ./ui
+	url = https://github.com/Myradose/fullstack-test-app-ui.git
 [submodule "api"]
 	path = api
-	url = ./api
+	url = https://github.com/Myradose/fullstack-test-app-api.git
 [submodule "db"]
 	path = db
-	url = ./db
+	url = https://github.com/Myradose/fullstack-test-app-db.git
