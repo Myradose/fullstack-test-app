@@ -33,7 +33,7 @@ RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor
 ENV PATH="$PATH:/opt/mssql-tools18/bin"
 
 # Install Angular CLI globally (as root so it's available system-wide)
-RUN npm install -g @angular/cli @angular/language-server
+RUN npm install -g @angular/cli@20 @angular/language-server@20
 
 # Install beads (bd) for git-backed task tracking
 # See: https://github.com/steveyegge/beads
