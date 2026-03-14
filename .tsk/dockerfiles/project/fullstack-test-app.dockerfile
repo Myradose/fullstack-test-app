@@ -43,12 +43,10 @@ RUN npm install -g @beads/bd
 # See: https://github.com/Dicklesworthstone/beads_viewer
 RUN curl -fsSL https://raw.githubusercontent.com/Dicklesworthstone/beads_viewer/main/install.sh | bash
 
-# Install Playwright MCP and chromium browser for browser automation
-# This installs @playwright/mcp globally and downloads chromium (most common browser for testing)
-# Browsers are installed to /opt/ms-playwright/ (shared location accessible by all users)
+# Playwright CLI + Chrome for browser automation
 ENV PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
-RUN npm install -g @playwright/mcp@latest && \
-    npx playwright install --with-deps chromium && \
+RUN npm install -g @playwright/cli@latest playwright@latest && \
+    playwright install --with-deps chrome && \
     chmod -R 755 /opt/ms-playwright && \
     mkdir -p /opt/playwright-profiles && \
     chown -R agent:agent /opt/playwright-profiles && \

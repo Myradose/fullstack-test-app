@@ -135,8 +135,8 @@ A task is fullstack if it requires:
    - Ensure no errors, warnings, or exceptions appear in the logs
    - Check that all services are healthy and responding
 
-2. **End-to-End Testing with Playwright MCP**
-   - Use the Playwright MCP tools for automated browser testing
+2. **End-to-End Testing with Playwright CLI**
+   - Use `playwright-cli` for automated browser testing (see the playwright-cli skill)
    - Test the full user flow through the application UI
    - Verify API responses and data display in the frontend
    - Confirm all CRUD operations work correctly
