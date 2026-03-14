@@ -22,14 +22,8 @@ echo "  Access via: /vnc/vnc.html?path=vnc/websockify&autoconnect=true&resize=sc
 echo "  DISPLAY=:99 is available for headful browser testing"
 echo ""
 
-# Configure Docker daemon to trust TSK registry if available
-if [ -n "$TSK_REGISTRY" ]; then
-  echo "Configuring Docker daemon to trust registry: $TSK_REGISTRY"
-  sudo mkdir -p /etc/docker
-  echo "{\"insecure-registries\": [\"$TSK_REGISTRY\"]}" | sudo tee /etc/docker/daemon.json > /dev/null
-fi
-
 # Start Docker-in-Docker daemon (requires sysbox-runc runtime)
+# Note: TSK automatically configures Docker daemon to trust the TSK registry
 echo "Starting Docker daemon..."
 sudo dockerd > /tmp/dockerd.log 2>&1 &
 DOCKERD_PID=$!
