@@ -60,6 +60,10 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Claude Code: bypass permission prompts (managed settings = highest precedence)
+RUN mkdir -p /etc/claude-code && \
+    echo '{"permissions":{"defaultMode":"bypassPermissions"}}' > /etc/claude-code/managed-settings.json
+
 # Switch back to agent user so AGENT layer installs with correct ownership
 # Note: sudo and docker group membership are provided by the dind layer
 USER agent
