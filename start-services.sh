@@ -1,6 +1,6 @@
 #!/bin/bash
 # Startup script for fullstack services in TSK serve container
-# Uses tarball-based image caching for parallel container support
+# Uses registry-based image caching for fast parallel container startup
 
 echo "==================================="
 echo "Fullstack Services Startup Script"
@@ -11,43 +11,45 @@ echo ""
 echo "Starting VNC server for browser observability..."
 Xvfb :99 -screen 0 1920x1080x24 > /tmp/xvfb.log 2>&1 &
 export DISPLAY=:99
-sleep 1  # Give Xvfb time to start
+sleep 1
 
 x11vnc -display :99 -forever -nopw -shared -viewonly > /tmp/x11vnc.log 2>&1 &
-sleep 1  # Give x11vnc time to start
+sleep 1
 
-# Start noVNC web interface (websockify proxies VNC to WebSocket)
 websockify --web /usr/share/novnc 6080 localhost:5900 > /tmp/novnc.log 2>&1 &
-echo "✓ VNC server started"
+echo "VNC server started"
 echo "  Access via: /vnc/vnc.html?path=vnc/websockify&autoconnect=true&resize=scale"
 echo "  DISPLAY=:99 is available for headful browser testing"
 echo ""
 
-# Check if Docker-in-Docker is available (requires sysbox-runc runtime)
-echo "Checking for Docker-in-Docker support..."
+# Configure Docker daemon to trust TSK registry if available
+if [ -n "$TSK_REGISTRY" ]; then
+  echo "Configuring Docker daemon to trust registry: $TSK_REGISTRY"
+  sudo mkdir -p /etc/docker
+  echo "{\"insecure-registries\": [\"$TSK_REGISTRY\"]}" | sudo tee /etc/docker/daemon.json > /dev/null
+fi
+
+# Start Docker-in-Docker daemon (requires sysbox-runc runtime)
+echo "Starting Docker daemon..."
 sudo dockerd > /tmp/dockerd.log 2>&1 &
 DOCKERD_PID=$!
 
 echo "Waiting for Docker daemon to be ready..."
 for i in {1..30}; do
   if docker info > /dev/null 2>&1; then
-    echo "✓ Docker daemon is ready!"
+    echo "Docker daemon is ready!"
     break
   fi
 
-  # Check if dockerd process is still running
   if ! kill -0 $DOCKERD_PID 2>/dev/null; then
-    echo "⚠️  Docker daemon failed to start (requires sysbox-runc runtime)"
-    echo "   Services will not be started."
-    echo "   To use Docker-in-Docker, run with: --runtime sysbox-runc"
-    exit 0  # Exit successfully, just skip services
+    echo "WARNING: Docker daemon failed to start (requires sysbox-runc runtime)"
+    exit 0
   fi
 
   if [ $i -eq 30 ]; then
-    echo "⚠️  Docker daemon timed out after 30 seconds"
-    echo "   Check logs: cat /tmp/dockerd.log"
-    kill $DOCKERD_PID 2>/dev/null || true
-    exit 0  # Exit successfully, just skip services
+    echo "WARNING: Docker daemon timed out after 30 seconds"
+    echo "  Check logs: cat /tmp/dockerd.log"
+    exit 0
   fi
   sleep 1
 done
@@ -57,28 +59,50 @@ set -e
 
 cd /workspace
 
-# Image cache directory (mounted from shared volume by TSK)
-IMAGE_CACHE="/docker-image-cache"
-CACHE_FILE="$IMAGE_CACHE/images.tar"
+# ============================================================
+# Registry-based image caching
+#   Pull from tsk-registry if available, otherwise pull from
+#   upstream. Push to registry after pull/build so subsequent
+#   containers get layer-level dedup.
+# ============================================================
+
+# registry_pull: try to pull an image from the TSK registry
+registry_pull() {
+  local local_tag="$1"
+  local registry_tag="$TSK_REGISTRY/$local_tag"
+  if docker pull "$registry_tag" 2>/dev/null; then
+    docker tag "$registry_tag" "$local_tag"
+    return 0
+  fi
+  return 1
+}
+
+# registry_push: push an image to the TSK registry
+registry_push() {
+  local local_tag="$1"
+  local registry_tag="$TSK_REGISTRY/$local_tag"
+  docker tag "$local_tag" "$registry_tag"
+  docker push "$registry_tag" 2>/dev/null || echo "  Warning: failed to push $local_tag to registry"
+}
+
+# Get all image names from compose config
+IMAGES=$(docker compose config --images 2>/dev/null | sort -u)
 
 echo ""
-echo "Checking for cached Docker images..."
-if [ -d "$IMAGE_CACHE" ] && [ -f "$CACHE_FILE" ]; then
-  echo "Loading images from cache..."
-  sudo docker load -i "$CACHE_FILE"
-  echo "✓ Images loaded from cache"
+if [ -n "$TSK_REGISTRY" ]; then
+  echo "Loading images via registry ($TSK_REGISTRY)..."
+  for img in $IMAGES; do
+    if registry_pull "$img"; then
+      echo "  [cached] $img"
+    else
+      echo "  [miss]   $img — pulling from upstream..."
+      docker pull "$img" 2>/dev/null || docker compose build --pull "$(docker compose config --services | head -1)" 2>/dev/null || true
+      registry_push "$img"
+    fi
+  done
 else
-  echo "Images not cached - pulling from registries..."
+  echo "No TSK_REGISTRY — pulling images from upstream..."
   docker compose pull
-
-  # Save images to cache for next run (if cache directory exists)
-  if [ -d "$IMAGE_CACHE" ]; then
-    echo "Saving images to cache..."
-    # Get deduplicated list of images from docker-compose.yml
-    IMAGES=$(docker compose config --images | sort -u)
-    sudo docker save -o "$CACHE_FILE" $IMAGES
-    echo "✓ Images saved to cache"
-  fi
 fi
 
 echo ""
