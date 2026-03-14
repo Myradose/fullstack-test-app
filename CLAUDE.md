@@ -62,6 +62,37 @@ docker compose exec fullstack-ui npm test
                     └───────────────────┘
 ```
 
+## Fullstack Implementation Workflow
+
+When a task requires changes across multiple layers (database, API, frontend), follow this principle: **build from the bottom up, test at each layer**.
+
+### Recognizing Fullstack Tasks
+
+A task is fullstack if it requires:
+- New data to be stored (needs database + API + frontend)
+- New API endpoints (needs backend + frontend to consume them)
+- Data that must persist across page refreshes
+
+### The Workflow: Bottom-Up
+
+**1. Explore first** - Understand existing patterns before writing code. How do existing features handle data flow from database → API → frontend?
+
+**2. Database** - If new data needs to persist, start here. Add tables/schemas.
+
+**3. API** - Build endpoints that expose the data. Test with curl before moving on.
+
+**4. Frontend** - Build services to call the API, then components to display/interact with data.
+
+**5. Test the full flow** - Verify data flows correctly through all layers.
+
+### Why Bottom-Up?
+
+- Each layer depends on the layer below it
+- You can test each layer in isolation before integrating
+- Frontend work is wasted if the API doesn't work
+- API work is wasted if the database schema is wrong
+- Debugging is easier when you know lower layers are solid
+
 ## Key File Locations
 
 | Component | Location |
