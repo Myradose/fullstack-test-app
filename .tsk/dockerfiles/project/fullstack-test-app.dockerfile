@@ -39,6 +39,9 @@ RUN npm install -g @angular/cli@20 @angular/language-server@20
 # See: https://github.com/steveyegge/beads
 RUN npm install -g @beads/bd
 
+# Install claude-code-router for multi-model routing (Gemini, GPT via direct APIs)
+RUN npm install -g @musistudio/claude-code-router
+
 # Install beads viewer (bv) for AI-friendly graph analytics
 # See: https://github.com/Dicklesworthstone/beads_viewer
 RUN curl -fsSL https://raw.githubusercontent.com/Dicklesworthstone/beads_viewer/main/install.sh | bash
