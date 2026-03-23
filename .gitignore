@@ -15,5 +15,7 @@ Thumbs.db
 # bv (beads viewer) local config and caches
 .bv/
 
-# Claude context repos (cloned references, not part of the project)
-.claude/context/
+# AI agent tooling
+CLAUDE.md
+.claude/
+.beads/
