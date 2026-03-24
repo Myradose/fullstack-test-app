@@ -2,7 +2,7 @@
   "browser": {
     "launchOptions": {
       "headless": false,
-      "args": ["--window-position=0,0", "--window-size=1920,1080"]
+      "args": ["--window-position=0,0", "--window-size=960,1080"]
     },
     "contextOptions": {
       "viewport": null

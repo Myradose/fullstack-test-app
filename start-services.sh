@@ -9,7 +9,7 @@ echo ""
 
 # Start VNC server for browser observability
 echo "Starting VNC server for browser observability..."
-Xvfb :99 -screen 0 1920x1080x24 > /tmp/xvfb.log 2>&1 &
+Xvfb :99 -screen 0 960x1080x24 > /tmp/xvfb.log 2>&1 &
 export DISPLAY=:99
 sleep 1
 

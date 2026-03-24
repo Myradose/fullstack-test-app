@@ -6,11 +6,16 @@ allowed-tools: Bash(playwright-cli:*)
 
 # Browser Automation with playwright-cli
 
+## Headed mode (required)
+
+Always pass `--config /workspace/.playwright/cli.config.json` when opening a browser. This sets
+headed mode, window size (960x1080), and viewport — and works regardless of working directory.
+
 ## Quick start
 
 ```bash
 # open new browser
-playwright-cli open
+playwright-cli open --config /workspace/.playwright/cli.config.json
 # navigate to a page
 playwright-cli goto https://playwright.dev
 # interact with the page using refs from the snapshot
@@ -49,7 +54,7 @@ playwright-cli eval "el => el.textContent" e5
 playwright-cli dialog-accept
 playwright-cli dialog-accept "confirmation text"
 playwright-cli dialog-dismiss
-playwright-cli resize 1920 1080
+playwright-cli resize 960 1080
 playwright-cli close
 ```
 
@@ -170,7 +175,11 @@ playwright-cli open --persistent
 # Use persistent profile with custom directory
 playwright-cli open --profile=/path/to/profile
 
-# Start with config file
+# Always use the project config (headed mode, correct window size)
+playwright-cli open --config /workspace/.playwright/cli.config.json
+playwright-cli open https://example.com --config /workspace/.playwright/cli.config.json
+
+# Start with a different config file
 playwright-cli open --config=my-config.json
 
 # Close the browser
