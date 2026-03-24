@@ -67,43 +67,6 @@ dotnet watch run                  # Run with hot reload
 
 **Build budgets**: Initial bundle 500kB warn / 1MB error. Component styles 4kB warn / 8kB error.
 
-## Angular Material
-
-Angular Material is set up as the UI component library for the frontend.
-
-### First-Time Setup
-
-To add Angular Material non-interactively, a theme must be chosen — `custom` is not a valid option (it silently falls back to `azure-blue`). Available theme palette pairs:
-
-```bash
-ng add @angular/material --skip-confirmation --theme=<theme>
-```
-
-| `--theme` value         | Primary  | Tertiary |
-|-------------------------|----------|----------|
-| `azure-blue` (default)  | azure    | blue     |
-| `rose-red`              | rose     | red      |
-| `magenta-violet`        | magenta  | violet   |
-| `cyan-orange`           | cyan     | orange   |
-
-All options generate an editable inline Sass theme in `styles.scss`. It is recommended to create a custom theme rather than keeping the defaults. Use the palette generation schematic to generate one from a brand color:
-
-```bash
-ng generate @angular/material:theme-color --help  # See all available options
-```
-
-### Schematics
-
-Angular Material provides `ng generate` schematics for scaffolding Material-based components (e.g. `table`, `navigation`, `dashboard`, `address-form`). Run `ng generate @angular/material: --help` to see available options.
-
-### Icons
-
-Prefer Angular Material icons (`mat-icon`) wherever applicable.
-
-### Theming Reference
-
-See [ui/docs/angular-material-theming.md](ui/docs/angular-material-theming.md) for the full Angular Material theming guide (Sass APIs, color palettes, light/dark mode, token overrides, etc.).
-
 ## API Architecture (.NET 8)
 
 Both APIs share identical structure: `Controllers/`, `Models/`, `Data/` (EF Core DbContext). They use the same SQL Server database (`FullStackApp`) with separate DbContexts. No test projects exist.
