@@ -9,6 +9,7 @@ services:
     environment:
       - DOTNET_USE_POLLING_FILE_WATCHER=true
       - ASPNETCORE_ENVIRONMENT=Development
+      - HOME=/tmp
 
   product-api:
     image: mcr.microsoft.com/dotnet/sdk:8.0
@@ -20,6 +21,7 @@ services:
     environment:
       - DOTNET_USE_POLLING_FILE_WATCHER=true
       - ASPNETCORE_ENVIRONMENT=Development
+      - HOME=/tmp
 
   fullstack-ui:
     image: node:lts-alpine
