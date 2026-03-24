@@ -96,6 +96,10 @@ ng generate @angular/material:theme-color --help  # See all available options
 
 Angular Material provides `ng generate` schematics for scaffolding Material-based components (e.g. `table`, `navigation`, `dashboard`, `address-form`). Run `ng generate @angular/material: --help` to see available options.
 
+### Icons
+
+Prefer Angular Material icons (`mat-icon`) wherever applicable.
+
 ### Theming Reference
 
 See [ui/docs/angular-material-theming.md](ui/docs/angular-material-theming.md) for the full Angular Material theming guide (Sass APIs, color palettes, light/dark mode, token overrides, etc.).
