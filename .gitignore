@@ -16,6 +16,5 @@ Thumbs.db
 .bv/
 
 # AI agent tooling
-CLAUDE.md
-.claude/
+.claude/context/
 .beads/
