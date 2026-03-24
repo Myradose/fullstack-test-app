@@ -1,6 +1,7 @@
 services:
   user-api:
     image: mcr.microsoft.com/dotnet/sdk:8.0
+    user: "1000:1000"
     working_dir: /app
     volumes:
       - ./api/UserApi:/app
@@ -11,6 +12,7 @@ services:
 
   product-api:
     image: mcr.microsoft.com/dotnet/sdk:8.0
+    user: "1000:1000"
     working_dir: /app
     volumes:
       - ./api/ProductApi:/app
@@ -21,15 +23,15 @@ services:
 
   fullstack-ui:
     image: node:lts-alpine
+    user: "1000:1000"
     working_dir: /app
     volumes:
       - ./ui:/app
-    command: ["npm", "run", "start"]
     ports:
       - "4200:4200"
     environment:
       - NODE_ENV=development
-    entrypoint: ["/bin/sh", "-c", "npm install -g @angular/cli && npm install && npm run start"]
+    entrypoint: ["/bin/sh", "-c", "npm install && npm run start"]
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
