@@ -18,3 +18,7 @@ Thumbs.db
 # AI agent tooling
 .claude/context/
 .beads/
+.playwright-cli/
+
+# Dependencies
+node_modules/
