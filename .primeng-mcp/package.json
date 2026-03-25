@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "@primeng/mcp": "^21.1.3"
+  }
+}

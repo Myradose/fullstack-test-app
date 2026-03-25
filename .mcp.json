@@ -2,10 +2,9 @@
   "mcpServers": {
     "primeng": {
       "type": "stdio",
-      "command": "npx",
+      "command": "node",
       "args": [
-        "-y",
-        "@primeng/mcp"
+        ".primeng-mcp/node_modules/@primeng/mcp/dist/index.js"
       ],
       "env": {}
     }

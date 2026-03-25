@@ -7,6 +7,12 @@ echo "Fullstack Services Startup Script"
 echo "==================================="
 echo ""
 
+# Install PrimeNG MCP server dependencies (pinned SDK version)
+echo "Installing PrimeNG MCP server..."
+cd /workspace/.primeng-mcp && npm ci --silent 2>/dev/null && echo "PrimeNG MCP server ready" || echo "Warning: PrimeNG MCP install failed"
+cd /workspace
+echo ""
+
 # Start VNC server for browser observability
 echo "Starting VNC server for browser observability..."
 Xvfb :99 -screen 0 960x1080x24 > /tmp/xvfb.log 2>&1 &
