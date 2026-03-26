@@ -1,6 +1,9 @@
 # TSK runtime configuration (created during testing)
 .tsk/serve.toml
 
+# Pre-cached Claude Code binary (225MB, avoids GCS rate limits during Docker build)
+.tsk/claude-code
+
 # Editor files
 .vscode/
 .idea/
